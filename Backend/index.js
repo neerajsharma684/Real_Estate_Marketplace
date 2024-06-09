@@ -17,5 +17,6 @@ App.listen(3000, () => {
     console.log('Server is running on port 3000');
 });
 
+App.use(express.json());
 App.use('/api/user', user);
 App.use('/api/signup', signup);
