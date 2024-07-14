@@ -15,8 +15,10 @@ router.post("/", async(req, res) => {
     try{
         await user.save();
         res.status(201).send("User Created Successfully !!!");
+        console.log("User Created Successfully !!!");
     } catch(err){
         res.status(500).send("User Already Exists !!!");
+        console.log("User Already Exists !!!");
     }
 });
 
