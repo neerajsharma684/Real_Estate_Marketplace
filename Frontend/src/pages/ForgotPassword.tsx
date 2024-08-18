@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -16,6 +16,7 @@ const ForgotPassword = () => {
   const [showField, setShowField] = useState(false);
   const [passwordValid, setPasswordValid] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validatePassword = (password: string) => {
@@ -42,6 +43,7 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setLoading(true);
     if (!formData.password) {
       try {
         const res = await fetch('/api/forgotPassword', {
@@ -51,11 +53,18 @@ const ForgotPassword = () => {
           },
           body: JSON.stringify(formData)
         });
-        if (res.status === 400) return alert('User Not Found');
-        else if (res.status === 200) setShowField(true);
+        if (res.status === 400){ 
+          setLoading(false);
+          return alert('User Not Found');
+        }else if (res.status === 200){
+          setLoading(false);
+          setShowField(true);
+        }
       }
       catch (error) {
         console.error('Error during fetch:', error);
+      }finally{
+        setLoading(false);
       }
     }
     else {
@@ -77,11 +86,14 @@ const ForgotPassword = () => {
         }
         else{
           console.log('Password change failed');
+          setLoading(false)
           alert('Password change failed');
         }
 
       }catch(err){
         console.error('Error during fetch:', err);
+      }finally{
+        setLoading(false);
       }}
     }
   }
@@ -110,7 +122,7 @@ const ForgotPassword = () => {
         <input type="email" placeholder="abc@gmail.com" className="border p-3 rounded-lg" id="email" onChange={handleChange} />
         {showField ? password() : null}
 
-        <button className="bg-slate-700 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80">Submit</button>
+        <button disabled={loading} className="bg-slate-700 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80">Submit</button>
       </form>
     </div>
   )

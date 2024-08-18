@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; 
+import { useDispatch, useSelector } from "react-redux";   
+import { signInStart, signInSuccess, signnFailure } from "../redux/user/userSlice";
 
 const SignIn = () => {
   interface FormData {
@@ -11,7 +13,10 @@ const SignIn = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [showPassword, setShowPassword] = useState(false);
   const [passwordCheck, setPasswordCheck] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loading = useSelector((state: any) => state.user.loading);
 
   const handleChange = (e:any) => {
     setFormData({
@@ -25,11 +30,13 @@ const SignIn = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    // setLoading(true);
     if (!formData.password || formData.password.length < 8) {
       setPasswordCheck(true);
+      // setLoading(false);
       return;
     }
-  
+    dispatch(signInStart());
     try {
       const res = await fetch('http://localhost:3000/api/signin/', {
         method: 'POST',
@@ -43,14 +50,21 @@ const SignIn = () => {
   
       if (res.status === 200) {
         // Handle successful login
+        const data = await res.json();
         console.log('Login successful');
+        dispatch(signInSuccess(data));
         navigate('/')
       } else {
         // Handle login failure
+        dispatch(signnFailure());
         console.log('Login failed');
       }
     } catch (error) {
       console.error('Error during fetch:', error);
+      dispatch(signnFailure());
+    }finally{
+      // setLoading(false);
+      dispatch(signnFailure());
     }
   };
     return (
@@ -73,7 +87,7 @@ const SignIn = () => {
             <Link className=" text-base text-blue-500" to="/signup">Sign Up</Link>
           </div>
         </div>
-        <button className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80">Login</button>
+        <button disabled={loading} className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80">Login</button>
         </form>
       </div>
     );

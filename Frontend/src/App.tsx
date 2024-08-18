@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { Home, About, SignIn, SignUp, ForgotPassword } from "./pages"
+import { Home, About, SignIn, SignUp, ForgotPassword, CreateListing, NotFound } from "./pages"
 import { Header } from "./components"
 
 function App() {
@@ -12,6 +12,8 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/create-listing" element={<CreateListing />}></Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )
