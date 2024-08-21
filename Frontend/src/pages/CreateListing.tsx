@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { useSelector } from 'react-redux';
+import { RootState } from "../redux/store";
+import { useNavigate } from 'react-router-dom';
 
 const CreateListing = () => {
   interface FormData {
+    Email: string;
     Name?: string;
     Description: string;
     Address: string;
@@ -17,14 +21,16 @@ const CreateListing = () => {
     two_wheeler_parking: number;
     area: number;
     property_type?: string;
-    price: string; // Store as string to handle formatting
+    price: string;
     offer: boolean;
     discountPercent: number;
-    discountAmount: string; // Store as number for internal calculations
-    images: File[]; // Update the type of 'images' property to allow an array of 'File' objects
+    discountAmount: string;
+    images: File[];
   }
 
+  
   const [formData, setFormData] = useState<FormData>({
+    Email: '',
     Description: '',
     Address: '',
     bedrooms: 0,
@@ -35,15 +41,23 @@ const CreateListing = () => {
     four_wheeler_parking: 0,
     two_wheeler_parking: 0,
     furnished: '',
-    price: '', // Start with an empty string
+    price: '',
     offer: false,
     discountPercent: 0,
-    discountAmount: '', // Start with zero
+    discountAmount: '',
     area: 0,
     property_type: 'Flat',
     images: [],
   });
-
+  const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user.currentUser);
+  if (user || user == '') {
+    formData.Email = user.email;
+  } else {
+    navigate('/signin');
+  }
+  const [showPopup, setShowPopup] = useState(false);
+  const [cnfPopup, setcnfPopup] = useState(false);
   const formatNumberWithCommas = (value: number) => {
     return value.toLocaleString('en-IN');
   };
@@ -159,6 +173,110 @@ const CreateListing = () => {
     }));
   };
 
+  const imageUpload = async (image: File, index: number) => {
+    const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${image.name}`;
+    const data = new FormData();
+    data.append("image", image);
+    data.append("uniqueFileName", uniqueFileName);
+
+  try {
+    const res = await fetch('/api/imagesUpload', {
+      method: 'POST',
+      body: data,
+    });
+
+    if (res.status === 200) {
+      console.log('Image uploaded successfully');
+      setFormData((prevData) => {
+        const updatedImages = [...prevData.images];
+        updatedImages[index] = new File([image], uniqueFileName, { type: image.type });
+        return {
+          ...prevData,
+          images: updatedImages,
+        };
+      });
+      setcnfPopup(true);
+      setShowPopup(true);
+    } else {
+      console.log('Image upload failed');
+      setcnfPopup(false);
+      setShowPopup(false);
+    }
+  } catch (error) {
+    console.error('Error during fetch:', error);
+    setcnfPopup(false);
+    setShowPopup(false);
+  }
+  }
+
+  function imageUploadSuccess () {
+    return(
+      <div className="space-y-2 p-4">
+              <div
+                role="alert"
+                className="bg-green-100 dark:bg-green-900 border-l-4 border-green-500 dark:border-green-700 text-green-900 dark:text-green-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-green-200 dark:hover:bg-green-800 transform hover:scale-105"
+              >
+                <svg
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-5 w-5 flex-shrink-0 mr-2 text-green-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span>Images Uploaded Successfully!</span>
+              </div>
+            </div>
+    )
+  }
+  
+  function imageUploadFailure () {
+    return (
+      <div className="space-y-2 p-4">
+              <div
+                role="alert"
+                className="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 dark:border-red-700 text-red-900 dark:text-red-100 p-2 rounded-lg flex items-center transition duration-300 ease-in-out hover:bg-red-200 dark:hover:bg-red-800 transform hover:scale-105"
+              >
+                <svg
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-5 w-5 flex-shrink-0 mr-2 text-green-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span>Images Upload Failed!</span>
+              </div>
+            </div>
+    )
+  }
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    formData.images.forEach(async (image, index) => {
+      try {
+        await imageUpload(image, index);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    });
+    setTimeout(() => {
+      setShowPopup(false);
+      setcnfPopup(false);
+    }, 5000);
+  }
+
   function renderPriceAndOfferSection() {
     if (formData.action === 'sell' || formData.action === 'lease') {
       return (
@@ -225,10 +343,13 @@ const CreateListing = () => {
           )
         }
   }
+
   return (
+    
     <div className="p-3 max-w-6xl mx-auto my-2">
+      {cnfPopup? showPopup? imageUploadSuccess(): imageUploadFailure() : null}
       <h1 className="text-3xl text-center font-semibold">Create a Listing</h1>
-      <form className="flex flex-col space-y-4">
+      <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
         <div className="flex flex-row space-x-4">
           <div className="flex-1 space-y-2">
             <input
@@ -384,7 +505,7 @@ const CreateListing = () => {
                 <div>
                   <p className='font-semibold'>Property Type:</p>
                   <select className='border p-3 rounded-lg w-full' id='type' onChange={handleChange}>
-                    <option value='Flat' selected>Flat</option>
+                    <option value='Flat' defaultValue={'Flat'}>Flat</option>
                     <option value='House'>House</option>
                     <option value='Apartment'>Apartment</option>
                     <option value='Villa'>Villa</option>

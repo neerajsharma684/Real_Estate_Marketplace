@@ -25,6 +25,9 @@ const Header = () =>{
                     <Link to={"/about"}>
                         <li className="hidden sm:inline text-slate-700 hover:underline">About</li>
                     </Link>
+                    <Link to={"/create-listing"}>
+                        <li className="hidden sm:inline text-slate-700 hover:underline">Create Listing</li>
+                    </Link>
                     {user ? (
                         <Link to={"/profile"}>
                             <li className="text-slate-700">Welcome, {user.name}</li>
