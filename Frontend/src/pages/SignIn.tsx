@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom"; 
 import { useDispatch, useSelector } from "react-redux";   
-import { signInStart, signInSuccess, signnFailure } from "../redux/user/userSlice";
+import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
 
 const SignIn = () => {
   interface FormData {
@@ -56,15 +56,15 @@ const SignIn = () => {
         navigate('/')
       } else {
         // Handle login failure
-        dispatch(signnFailure());
+        dispatch(signInFailure());
         console.log('Login failed');
       }
     } catch (error) {
       console.error('Error during fetch:', error);
-      dispatch(signnFailure());
+      dispatch(signInFailure());
     }finally{
       // setLoading(false);
-      dispatch(signnFailure());
+      dispatch(signInFailure());
     }
   };
     return (

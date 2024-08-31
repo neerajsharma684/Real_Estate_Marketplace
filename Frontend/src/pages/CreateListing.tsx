@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { RootState } from "../redux/store";
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 const CreateListing = () => {
   interface FormData {
-    Email: string;
-    Name?: string;
-    Description: string;
-    Address: string;
+    email: string;
+    name?: string;
+    description: string;
+    address: string;
     action: string;
     bedrooms: number;
     halls: number;
@@ -26,36 +27,49 @@ const CreateListing = () => {
     discountPercent: number;
     discountAmount: string;
     images: File[];
+    imageName: string[];
   }
 
-  
-  const [formData, setFormData] = useState<FormData>({
-    Email: '',
-    Description: '',
-    Address: '',
+  const initialFormData: FormData = {
+    email: '',
+    name: '',
+    description: '',
+    address: '',
+    action: '',
     bedrooms: 0,
     halls: 0,
     kitchens: 0,
     bathrooms: 0,
-    action: '',
+    furnished: '',
     four_wheeler_parking: 0,
     two_wheeler_parking: 0,
-    furnished: '',
+    area: 0,
+    property_type: 'Flat',
     price: '',
     offer: false,
     discountPercent: 0,
-    discountAmount: '',
-    area: 0,
-    property_type: 'Flat',
+    discountAmount: '0',
     images: [],
-  });
+    imageName: [],
+  };
+
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user.currentUser);
-  if (user || user == '') {
-    formData.Email = user.email;
-  } else {
-    navigate('/signin');
-  }
+  const isLoading = useSelector((state: RootState) => state.user.loading);
+
+  useEffect(() => {
+    if (isLoading) {
+      // Show a loading indicator or do nothing
+    } else if (!user) {
+      navigate('/signin');
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        email: user.email,
+      }));
+    }
+  }, [isLoading, user, navigate]);
   const [showPopup, setShowPopup] = useState(false);
   const [cnfPopup, setcnfPopup] = useState(false);
   const formatNumberWithCommas = (value: number) => {
@@ -64,34 +78,22 @@ const CreateListing = () => {
 
   const handleChange = (e: any) => {
     const { id, value } = e.target;
-
-    if (id === 'price') {
-      // Handle price field specifically
-      const rawValue = value.replace(/,/g, ''); // Remove commas for internal storage
-      setFormData((prevData) => ({
-        ...prevData,
-        [id]: rawValue, // Store raw value without commas
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [id]: value,
-      }));
-    }
-    if (id === 'discountAmount') {
-      // Handle price field specifically
-      const rawValue = value.replace(/,/g, ''); // Remove commas for internal storage
-      setFormData((prevData) => ({
-        ...prevData,
-        [id]: rawValue, // Store raw value without commas
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [id]: value,
-      }));
-    }
-
+  
+    // Check if the field requires number conversion or special handling
+    const isPriceOrDiscount = ['price', 'discountAmount'].includes(id);
+    const isNumericField = ['bedrooms', 'halls', 'kitchens', 'bathrooms', 'four_wheeler_parking', 'two_wheeler_parking', 'area', 'discountPercent'].includes(id);
+  
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: isPriceOrDiscount 
+              ? value.replace(/,/g, '') // Remove commas for price and discountAmount
+              : isNumericField 
+              ? Number(value) // Convert numeric fields to numbers
+              : id === 'offer' 
+              ? value === 'true' // Convert offer to boolean
+              : value, // Default case for other fields
+    }));
+  
     console.log(formData);
   };
 
@@ -161,10 +163,17 @@ const CreateListing = () => {
       const filesArray = Array.from(e.target.files);
       setFormData((prevData) => ({
         ...prevData,
-        images: filesArray,
+        images: [...prevData.images, ...filesArray],
       }));
     }
   };
+
+  const updateImageNames = (name: string) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      imageName: [...prevData.imageName, name],
+    }));
+  }
 
   const handleImageDelete = (index: number) => {
     setFormData((prevData) => ({
@@ -173,41 +182,35 @@ const CreateListing = () => {
     }));
   };
 
-  const imageUpload = async (image: File, index: number) => {
-    const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${image.name}`;
-    const data = new FormData();
-    data.append("image", image);
-    data.append("uniqueFileName", uniqueFileName);
-
-  try {
-    const res = await fetch('/api/imagesUpload', {
-      method: 'POST',
-      body: data,
+  const imageUpload = (images: File[]) => {
+    const promises = images.map((image) => {
+      const uniqueFileName = `${uuidv4()}${image.name}`;
+      const data = new FormData();
+      data.append("image", image);
+      data.append("uniqueFileName", uniqueFileName);
+  
+      return fetch('/api/imagesUpload', {
+        method: 'POST',
+        body: data,
+      })
+        .then((res) => {
+          if (res.ok) {
+            console.log('Image uploaded successfully');
+            updateImageNames(uniqueFileName);
+            return uniqueFileName;
+          } else {
+            console.log('Image upload failed:');
+            throw new Error(`Image upload failed:`);
+          }
+        })
+        .catch((error) => {
+          console.error('Error during fetch:', error);
+          throw error;
+        });
     });
-
-    if (res.status === 200) {
-      console.log('Image uploaded successfully');
-      setFormData((prevData) => {
-        const updatedImages = [...prevData.images];
-        updatedImages[index] = new File([image], uniqueFileName, { type: image.type });
-        return {
-          ...prevData,
-          images: updatedImages,
-        };
-      });
-      setcnfPopup(true);
-      setShowPopup(true);
-    } else {
-      console.log('Image upload failed');
-      setcnfPopup(false);
-      setShowPopup(false);
-    }
-  } catch (error) {
-    console.error('Error during fetch:', error);
-    setcnfPopup(false);
-    setShowPopup(false);
-  }
-  }
+  
+    return Promise.all(promises);
+  };
 
   function imageUploadSuccess () {
     return(
@@ -262,20 +265,48 @@ const CreateListing = () => {
             </div>
     )
   }
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    formData.images.forEach(async (image, index) => {
-      try {
-        await imageUpload(image, index);
-      } catch (error) {
-        console.error('Error uploading image:', error);
+    try {
+      const uploadedImageNames = await imageUpload(formData.images);
+      // Update the formData with the uploaded image names
+      const updatedFormData = {
+        ...formData,
+        imageName: uploadedImageNames,
+      };
+  
+      console.log('Final form data:');
+      console.log(updatedFormData);
+  
+      const res = await fetch('http://localhost:3000/api/create-user-listing/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedFormData),
+      });
+  
+      if (res.status === 201) {
+        console.log('Listing created successfully');
+        setTimeout(() => {
+          window.location.reload(); // reload the page
+        }, 3000);
+      } else {
+        const errorText = await res.text();
+        console.log('Listing creation failed:', errorText);
+        alert(`Listing creation failed: ${errorText}`);
       }
-    });
-    setTimeout(() => {
-      setShowPopup(false);
-      setcnfPopup(false);
-    }, 5000);
-  }
+    } catch (error) {
+      console.error('Error during image upload or listing creation:', error);
+      alert(`Error during image upload or listing creation:`);
+    } finally {
+      setTimeout(() => {
+        setShowPopup(false);
+        setcnfPopup(false);
+      }, 5000);
+    }
+  };
 
   function renderPriceAndOfferSection() {
     if (formData.action === 'sell' || formData.action === 'lease') {
@@ -305,8 +336,8 @@ const CreateListing = () => {
                 <label className="font-semibold">Discount Percentage:</label>
                 <input
                   type="number"
-                  min="0"
-                  max="100"
+                  min="0.0"
+                  max="100.0"
                   className="border p-3 rounded-lg w-full"
                   id="discountPercent"
                   value={formData.discountPercent}
@@ -345,7 +376,7 @@ const CreateListing = () => {
   }
 
   return (
-    
+
     <div className="p-3 max-w-6xl mx-auto my-2">
       {cnfPopup? showPopup? imageUploadSuccess(): imageUploadFailure() : null}
       <h1 className="text-3xl text-center font-semibold">Create a Listing</h1>
@@ -356,20 +387,20 @@ const CreateListing = () => {
               type="text"
               placeholder="Name"
               className="border p-3 rounded-lg w-full"
-              id="Name"
+              id="name"
               onChange={handleChange}
             />
             <textarea
               placeholder="Description"
               className="border p-3 rounded-lg w-full"
-              id="Description"
+              id="description"
               onChange={handleChange}
             ></textarea>
             <textarea
               placeholder="Address"
               className="border p-3 rounded-lg w-full"
               name="Address"
-              id="Address"
+              id="address"
               onChange={handleChange}
             ></textarea>
             <div>
@@ -504,7 +535,7 @@ const CreateListing = () => {
                 </div>
                 <div>
                   <p className='font-semibold'>Property Type:</p>
-                  <select className='border p-3 rounded-lg w-full' id='type' onChange={handleChange}>
+                  <select className='border p-3 rounded-lg w-full' id='property_type' onChange={handleChange}>
                     <option value='Flat' defaultValue={'Flat'}>Flat</option>
                     <option value='House'>House</option>
                     <option value='Apartment'>Apartment</option>

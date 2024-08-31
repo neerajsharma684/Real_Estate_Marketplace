@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { user, signup, signin, forgotPassword, imagesUpload } from './routes/index.js';
+import { signup, signin, forgotPassword, imagesUpload, Listing } from './routes/index.js';
 import cors from 'cors';
 
 dotenv.config();
@@ -23,8 +23,8 @@ App.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
   }));
 App.use(express.json());
-App.use('/api/user', user);
 App.use('/api/signup', signup);
 App.use('/api/signin', signin);
 App.use('/api/forgotPassword', forgotPassword);
 App.use('/api/imagesUpload', imagesUpload);
+App.use('/api/create-user-listing', Listing);

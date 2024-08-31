@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction }  from '@reduxjs/toolkit';
+import { createSlice }  from '@reduxjs/toolkit';
 import Cookies from 'js-cookie';
 
 
@@ -27,8 +27,9 @@ const userSlice = createSlice({
         signInSuccess: (state, action) => {
             state.currentUser = action.payload;
             state.loading = false;
+            Cookies.set('access_token', 'some_token'); // Set a token or user info in cookies
         },
-        signnFailure: (state) => {
+        signInFailure: (state) => {
             state.loading = false;
         },
         signout: (state) => {
@@ -38,6 +39,6 @@ const userSlice = createSlice({
     }
 });
 
-export const { signInStart, signInSuccess, signnFailure, signout } = userSlice.actions;
+export const { signInStart, signInSuccess, signInFailure, signout } = userSlice.actions;
 
 export default userSlice.reducer;

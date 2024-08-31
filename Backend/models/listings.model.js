@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
 const listingSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true,
+        min: 6,
+        max: 255
+    },
     name: {
         type: String,
         required: true,
@@ -70,8 +76,11 @@ const listingSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    images: {
-        type: Array,
-        required: true
+    imageName: {
+        type: [String],
     }
 });
+
+const Listing = mongoose.model("Listings", listingSchema);
+
+export default Listing;
