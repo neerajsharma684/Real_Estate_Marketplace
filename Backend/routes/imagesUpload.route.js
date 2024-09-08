@@ -6,7 +6,13 @@ import multer from "multer";
 dotenv.config();
 
 const router = express.Router();
-const upload = multer(); // Multer to handle form-data image uploads
+
+// Multer configuration to handle large files
+const upload = multer({
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20 MB
+  },
+});
 
 const token = process.env.GIT_ACCESS_TOKEN;
 const repoUrl = process.env.IMAGES_UPLOAD_PATH; // e.g., https://api.github.com/repos/yourusername/your-repo/contents/images/

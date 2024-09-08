@@ -207,7 +207,8 @@ const CreateListing = () => {
           console.error('Error during fetch:', error);
           throw error;
         });
-    });
+    }
+  );
   
     return Promise.all(promises);
   };

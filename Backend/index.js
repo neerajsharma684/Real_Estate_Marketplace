@@ -22,7 +22,12 @@ App.use(cors({
     methods: 'GET,POST,PUT,DELETE', // Allow these methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
   }));
+
+App.use('/api/create-user-listing', express.json({ limit: '20mb' }));
+App.use('/api/create-user-listing', express.urlencoded({ limit: '20mb', extended: true }));
+
 App.use(express.json());
+App.use(express.urlencoded({ extended: true }));
 App.use('/api/signup', signup);
 App.use('/api/signin', signin);
 App.use('/api/forgotPassword', forgotPassword);
