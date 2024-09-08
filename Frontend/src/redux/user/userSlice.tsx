@@ -12,8 +12,22 @@ interface UserState {
     loading: boolean;
 }
 
+const getUserFromCookie = (): User | null => {
+    const cookie = Cookies.get('access_token');
+    if (cookie) {
+      try {
+        const user = JSON.parse(cookie);
+        return { name: user.name, email: user.email };
+      } catch (error) {
+        console.error('Error parsing cookie:', error);
+        return null;
+      }
+    }
+    return null;
+  };
+
 const initialState: UserState = {
-    currentUser: Cookies.get('access_token') ? {name: "Deafult User", email: "default@example.com"} : null,
+    currentUser: getUserFromCookie(),
     loading: false,
 };
 
@@ -27,7 +41,7 @@ const userSlice = createSlice({
         signInSuccess: (state, action) => {
             state.currentUser = action.payload;
             state.loading = false;
-            Cookies.set('access_token', 'some_token'); // Set a token or user info in cookies
+            Cookies.set('access_token', JSON.stringify(action.payload)); // Set a token or user info in cookies
         },
         signInFailure: (state) => {
             state.loading = false;

@@ -3,3 +3,4 @@ export {default as Contact} from './Contact';
 export {default as Auth} from './Auth';
 export {default as ListingItem} from './ListingItem';
 export {default as PrivateRoute} from './PrivateRoute';
+export {default as Loader} from './Loader';

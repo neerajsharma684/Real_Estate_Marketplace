@@ -3,3 +3,5 @@ export { default as signin } from './signin.route.js';
 export { default as forgotPassword } from './forgotPassword.route.js';
 export { default as imagesUpload } from './imagesUpload.route.js';
 export { default as Listing } from './createListing.route.js';
+export { default as UpdateEmail } from './updateEmail.route.js';
+export { default as UpdatePassword } from './updatePassword.route.js';

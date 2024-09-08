@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { signup, signin, forgotPassword, imagesUpload, Listing } from './routes/index.js';
+import { signup, signin, forgotPassword, imagesUpload, Listing, UpdateEmail, UpdatePassword } from './routes/index.js';
 import cors from 'cors';
 
 dotenv.config();
@@ -33,3 +33,5 @@ App.use('/api/signin', signin);
 App.use('/api/forgotPassword', forgotPassword);
 App.use('/api/imagesUpload', imagesUpload);
 App.use('/api/create-user-listing', Listing);
+App.use('/api/update-email', UpdateEmail);
+App.use('/api/update-password', UpdatePassword);

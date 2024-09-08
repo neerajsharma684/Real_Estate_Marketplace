@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from "../redux/store";
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { Loader } from '../components';
 
 const CreateListing = () => {
   interface FormData {
@@ -23,7 +24,6 @@ const CreateListing = () => {
     area: number;
     property_type?: string;
     price: string;
-    offer: boolean;
     discountPercent: number;
     discountAmount: string;
     images: File[];
@@ -46,7 +46,6 @@ const CreateListing = () => {
     area: 0,
     property_type: 'Flat',
     price: '',
-    offer: false,
     discountPercent: 0,
     discountAmount: '0',
     images: [],
@@ -72,6 +71,7 @@ const CreateListing = () => {
   }, [isLoading, user, navigate]);
   const [showPopup, setShowPopup] = useState(false);
   const [cnfPopup, setcnfPopup] = useState(false);
+  const [loading, setloading] = useState(false);
   const formatNumberWithCommas = (value: number) => {
     return value.toLocaleString('en-IN');
   };
@@ -95,16 +95,6 @@ const CreateListing = () => {
     }));
   
     console.log(formData);
-  };
-
-  const handleOfferChange = (e: any) => {
-    const { checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      offer: checked,
-      discountPercent: 0,
-      discountAmount: '0',
-    }));
   };
 
   const handleDiscountChange = (e: any) => {
@@ -182,35 +172,31 @@ const CreateListing = () => {
     }));
   };
 
-  const imageUpload = (images: File[]) => {
-    const promises = images.map((image) => {
-      const uniqueFileName = `${uuidv4()}${image.name}`;
-      const data = new FormData();
-      data.append("image", image);
-      data.append("uniqueFileName", uniqueFileName);
+  const imageUpload = async (images: File[]) => {
+    for (const image of images) {
+      try {
+        const uniqueFileName = `${uuidv4()}${image.name}`;
+        const data = new FormData();
+        data.append("image", image);
+        data.append("uniqueFileName", uniqueFileName);
   
-      return fetch('/api/imagesUpload', {
-        method: 'POST',
-        body: data,
-      })
-        .then((res) => {
-          if (res.ok) {
-            console.log('Image uploaded successfully');
-            updateImageNames(uniqueFileName);
-            return uniqueFileName;
-          } else {
-            console.log('Image upload failed:');
-            throw new Error(`Image upload failed:`);
-          }
-        })
-        .catch((error) => {
-          console.error('Error during fetch:', error);
-          throw error;
+        const response = await fetch('/api/imagesUpload', {
+          method: 'POST',
+          body: data,
         });
-    }
-  );
   
-    return Promise.all(promises);
+        if (response.ok) {
+          console.log('Image uploaded successfully');
+          updateImageNames(uniqueFileName);
+        } else {
+          console.log('Image upload failed:');
+          throw new Error(`Image upload failed for ${image.name}`);
+        }
+      } catch (error) {
+        console.error('Error during fetch:', error);
+        throw error; // Stop the process if an error occurs
+      }
+    }
   };
 
   function imageUploadSuccess () {
@@ -269,23 +255,14 @@ const CreateListing = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    try {
-      const uploadedImageNames = await imageUpload(formData.images);
-      // Update the formData with the uploaded image names
-      const updatedFormData = {
-        ...formData,
-        imageName: uploadedImageNames,
-      };
-  
-      console.log('Final form data:');
-      console.log(updatedFormData);
-  
+    setloading(true);
+    try {  
       const res = await fetch('http://localhost:3000/api/create-user-listing/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFormData),
+        body: JSON.stringify(formData),
       });
   
       if (res.status === 201) {
@@ -307,6 +284,19 @@ const CreateListing = () => {
         setcnfPopup(false);
       }, 5000);
     }
+    setloading(false);
+  };
+
+  const handleImageSubmit = async (e: any) => {
+    e.preventDefault();
+    setloading(true);
+    try {
+      await imageUpload(formData.images); // Ensure images are uploaded sequentially
+      console.log("All images uploaded successfully.");
+    } catch (error) {
+      console.error("Error uploading images:", error);
+    }
+    setloading(false);
   };
 
   function renderPriceAndOfferSection() {
@@ -321,17 +311,7 @@ const CreateListing = () => {
             onChange={handleChange}
             value={formatNumberWithCommas(parseFloat(formData.price.replace(/,/g, '')) || 0)} // Display formatted value
           />
-          <div className="flex flex-row items-center space-x-2 mt-2">
-            <p className="font-semibold">Offer/Discount:</p>
-            <input
-              type="checkbox"
-              className="border p-3 rounded-lg"
-              id="offer"
-              checked={formData.offer}
-              onChange={handleOfferChange}
-            />
-          </div>
-          {formData.offer && (
+          
             <div className="flex flex-col space-y-2 mt-2">
               <div>
                 <label className="font-semibold">Discount Percentage:</label>
@@ -356,7 +336,7 @@ const CreateListing = () => {
                 />
               </div>
             </div>
-          )}
+          
         </div>
       );
     }
@@ -377,7 +357,8 @@ const CreateListing = () => {
   }
 
   return (
-
+    <div>
+      {loading ? <Loader /> : null}
     <div className="p-3 max-w-6xl mx-auto my-2">
       {cnfPopup? showPopup? imageUploadSuccess(): imageUploadFailure() : null}
       <h1 className="text-3xl text-center font-semibold">Create a Listing</h1>
@@ -576,8 +557,16 @@ const CreateListing = () => {
             </div>
             {renderPriceAndOfferSection()}
             <p><span className='font-semibold'>Images: </span>The first image will be the cover image.</p>
+            <div className='flex justify-start gap-5'>
             <div className="grid w-full max-w-xs items-center gap-1.5">
               <input id="picture" type="file" multiple accept="image/*" className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium" onChange={handleImageChange}/>
+            </div>
+            <button
+          className="bg-blue-500 text-white p-2 rounded-lg w-fit"
+          onClick={handleImageSubmit}
+        >
+          Upload
+        </button>
             </div>
             <div className="image-preview-container max-w-xl overflow-x-auto pb-2">
             <div className="image-preview flex gap-2">
@@ -619,6 +608,7 @@ const CreateListing = () => {
       </div>
     </form>
   </div>
+    </div>
   );
 };
 
