@@ -10,6 +10,9 @@ const Profile = () => {
   interface FormData {
     oldEmail: string;
     email: string;
+    phone: string;
+    telegram: string;
+    whatsapp: string;
     password: string;
     confirmPassword: string;
   }
@@ -26,14 +29,19 @@ const Profile = () => {
         ...prevData,
         oldEmail: user.email,
         email: user.email,
+
       }));
     }
   }, [isLoading, navigate]);
   const user = useSelector((state: RootState) => state.user.currentUser);
   const [passwordUpdate, setPasswordUpdate] = useState(false);
+  const [contactUpdate, setContactUpdate] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     oldEmail: String(user?.email),
     email: String(user?.email),
+    phone: String(user?.phone),
+    telegram: String(user?.telegram),
+    whatsapp: String(user?.whatsapp),
     password: "",
     confirmPassword: "",
   });
@@ -71,7 +79,7 @@ const Profile = () => {
   };
 
   const handleUpdate = async () => {
-    if (!passwordUpdate) {
+    if (!passwordUpdate && !contactUpdate) {
       try{
         const res = await fetch("http://localhost:3000/api/update-email", {
           method: "PUT",
@@ -88,7 +96,7 @@ const Profile = () => {
       console.log("Error Updating Email");
     }
   }
-  else{
+  else if (passwordUpdate && !contactUpdate) {
     passwordMatchCheck();
     passwordValid();
     if (passwordCheck && passwordMatch) {
@@ -149,6 +157,46 @@ const Profile = () => {
       </div>
     );
   }
+  function contact() {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="bg-white rounded-lg flex items-center gap-2">
+        <p className="font-bold">Phone</p>
+          <input
+            type="number"
+            placeholder="Phone Number"
+            className="border p-3 rounded-lg"
+            id="phone"
+            onChange={handleChange}
+            defaultValue={user?.phone}
+          />
+          
+        </div>
+        <div className="bg-white rounded-lg flex items-center gap-2">
+        <p className="font-bold">WhatsApp</p>
+          <input
+            type="number"
+            placeholder="WhatsApp Number"
+            className="border p-3 rounded-lg"
+            id="whatsapp"
+            onChange={handleChange}
+            defaultValue={user?.whatsapp}
+          />
+        </div>
+        <div className="bg-white rounded-lg flex items-center gap-2">
+        <p className="font-bold">Telegram</p>
+          <input
+            type="text"
+            placeholder="telegram id"
+            className="border p-3 rounded-lg"
+            id="telegram"
+            onChange={handleChange}
+            defaultValue={user?.telegram}
+          />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="p-3 max-w-lg mx-auto">
       <div className="bg-white flex flex-col items-center rounded-lg my-5 p-4 shadow-md">
@@ -179,7 +227,17 @@ const Profile = () => {
           />
           <p>Update Password</p>
         </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            className="border p-3 rounded-lg"
+            id="updatePassword"
+            onChange={() => setContactUpdate(!contactUpdate)}
+          />
+          <p>Update Contact Details</p>
+        </div>
         {passwordUpdate ? newPassword() : null}
+        {contactUpdate ? contact() : null}
         <button
           className="bg-blue-500 text-white p-3 rounded-lg w-full mt-4"
           onClick={handleUpdate}

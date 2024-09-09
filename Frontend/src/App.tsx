@@ -15,6 +15,9 @@ function App() {
         <Route path="/create-listing" element={<CreateListing />}></Route>
         <Route path="/profile" element={<Profile />} />
         <Route path="/show-listings" element={<ShowListings />} />
+        <Route path="/property/:id" element={<ShowListings />} />
+        <Route path="/property-edit/:id" element={<ShowListings />} />
+        <Route path="/property-contact/:id" element={<ShowListings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

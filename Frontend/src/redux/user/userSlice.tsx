@@ -5,6 +5,9 @@ import Cookies from 'js-cookie';
 interface User {
     name: string;
     email: string;
+    phone: string;
+    telegram: string;
+    whatsapp: string;
 }
 
 interface UserState {
@@ -17,7 +20,7 @@ const getUserFromCookie = (): User | null => {
     if (cookie) {
       try {
         const user = JSON.parse(cookie);
-        return { name: user.name, email: user.email };
+        return { name: user.name, email: user.email, phone: user.phone, telegram: user.telegram, whatsapp: user.whatsapp };
       } catch (error) {
         console.error('Error parsing cookie:', error);
         return null;
