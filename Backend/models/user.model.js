@@ -17,7 +17,25 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         min: 8
-    }
+    },
+    phone: {
+        type: String,
+        required: false,
+        min: 10,
+        max: 10
+    },
+    whatsapp: {
+        type: String,
+        required: false,
+        min: 10,
+        max: 10
+    },
+    telegram: {
+        type: String,
+        required: false,
+        min: 10,
+        max: 10
+    },
     }, {timestamps: true});
 
     const User = mongoose.model('User', userSchema)

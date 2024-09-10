@@ -9,8 +9,11 @@ import { Loader } from '../components';
 
 const CreateListing = () => {
   interface FormData {
-    email: string;
-    name?: string;
+    email?: string;
+    phone?: string;
+    whatsapp?: string;
+    telegram?: string;
+    name: string;
     description: string;
     address: string;
     action: string;
@@ -32,6 +35,9 @@ const CreateListing = () => {
 
   const initialFormData: FormData = {
     email: '',
+    phone: '',
+    whatsapp: '',
+    telegram: '',
     name: '',
     description: '',
     address: '',
@@ -60,12 +66,16 @@ const CreateListing = () => {
   useEffect(() => {
     if (isLoading) {
       // Show a loading indicator or do nothing
+      <Loader />;
     } else if (!user) {
       navigate('/signin');
     } else {
       setFormData((prevData) => ({
         ...prevData,
         email: user.email,
+        phone: user.phone,
+        whatsapp: user.whatsapp,
+        telegram: user.telegram,
       }));
     }
   }, [isLoading, user, navigate]);
@@ -319,6 +329,7 @@ const CreateListing = () => {
                   type="number"
                   min="0.0"
                   max="100.0"
+                  step={0.01}
                   className="border p-3 rounded-lg w-full"
                   id="discountPercent"
                   value={formData.discountPercent}

@@ -29,7 +29,6 @@ const Profile = () => {
         ...prevData,
         oldEmail: user.email,
         email: user.email,
-
       }));
     }
   }, [isLoading, navigate]);
@@ -55,17 +54,20 @@ const Profile = () => {
     } else {
       setPasswordMatch(false);
     }
-  }
+  };
   const passwordValid = () => {
     const validPattern = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
-    const isPasswordValid = formData.password.length >= 8 && validPattern.test(formData.password);
-    const isConfirmPasswordValid = formData.confirmPassword.length >= 8 && validPattern.test(formData.confirmPassword);
+    const isPasswordValid =
+      formData.password.length >= 8 && validPattern.test(formData.password);
+    const isConfirmPasswordValid =
+      formData.confirmPassword.length >= 8 &&
+      validPattern.test(formData.confirmPassword);
     if (isPasswordValid && isConfirmPasswordValid) {
       setPasswordCheck(true);
     } else {
       setPasswordCheck(false);
     }
-  }
+  };
   const handleChange = (e: any) => {
     setFormData({
       ...formData,
@@ -80,45 +82,98 @@ const Profile = () => {
 
   const handleUpdate = async () => {
     if (!passwordUpdate && !contactUpdate) {
-      try{
+      try {
         const res = await fetch("http://localhost:3000/api/update-email", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-      });
-      if (res.status === 200) {
-        console.log("Updated Email");
-        navigate("/signin");
+        });
+        if (res.status === 200) {
+          console.log("Updated Email");
+          navigate("/signin");
+        }
+      } catch (error) {
+        console.log("Error Updating Email");
       }
-    }catch (error) {
-      console.log("Error Updating Email");
-    }
-  }
-  else if (passwordUpdate && !contactUpdate) {
-    passwordMatchCheck();
-    passwordValid();
-    if (passwordCheck && passwordMatch) {
-      try{
-        const res = await fetch("http://localhost:3000/api/update-password", {
+    } else if (passwordUpdate && !contactUpdate) {
+      passwordMatchCheck();
+      passwordValid();
+      if (passwordCheck && passwordMatch) {
+        try {
+          const res = await fetch("http://localhost:3000/api/update-password", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+          if (res.status === 200) {
+            console.log("Updated Password");
+            navigate("/signin");
+          }
+        } catch (error) {
+          console.log("Error Updating Password");
+        }
+      }
+      console.log(formData);
+    } else if (!passwordUpdate && contactUpdate) {
+      try {
+        const res = await fetch("http://localhost:3000/api/update-contacts", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-      });
-      if (res.status === 200) {
-        console.log("Updated Password");
-        navigate("/signin");
+        });
+        if (res.status === 200) {
+          console.log("Updated Contacts");
+          navigate("/signin");
+        }
+      } catch (error) {
+        console.log("Error Updating Password");
       }
-    }catch (error) {
-      console.log("Error Updating Password");
+    } else if (passwordUpdate && contactUpdate) {
+      // Update Password
+      passwordMatchCheck();
+      passwordValid();
+      if (passwordCheck && passwordMatch) {
+        try {
+          const res = await fetch("http://localhost:3000/api/update-password", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+          if (res.status === 200) {
+            console.log("Updated Password");
+            navigate("/signin");
+          }
+        } catch (error) {
+          console.log("Error Updating Password");
+        }
+      }
+
+      // Update Contacts
+      try {
+        const res = await fetch("http://localhost:3000/api/update-contacts", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+        if (res.status === 200) {
+          console.log("Updated Contacts");
+          navigate("/signin");
+        }
+      } catch (error) {
+        console.log("Error Updating Password");
+      }
     }
-  }
-    console.log(formData);
   };
-  }
   function newPassword() {
     return (
       <div className="flex flex-col gap-2">
@@ -161,7 +216,7 @@ const Profile = () => {
     return (
       <div className="flex flex-col gap-2">
         <div className="bg-white rounded-lg flex items-center gap-2">
-        <p className="font-bold">Phone</p>
+          <p className="font-bold">Phone</p>
           <input
             type="number"
             placeholder="Phone Number"
@@ -170,10 +225,9 @@ const Profile = () => {
             onChange={handleChange}
             defaultValue={user?.phone}
           />
-          
         </div>
         <div className="bg-white rounded-lg flex items-center gap-2">
-        <p className="font-bold">WhatsApp</p>
+          <p className="font-bold">WhatsApp</p>
           <input
             type="number"
             placeholder="WhatsApp Number"
@@ -184,7 +238,7 @@ const Profile = () => {
           />
         </div>
         <div className="bg-white rounded-lg flex items-center gap-2">
-        <p className="font-bold">Telegram</p>
+          <p className="font-bold">Telegram</p>
           <input
             type="text"
             placeholder="telegram id"
@@ -211,11 +265,13 @@ const Profile = () => {
           <input
             type="email"
             placeholder="abc@gmail.com"
-            className={`border p-3 rounded-lg ${passwordUpdate ? "bg-gray-200" : ""}`}
+            className={`border p-3 rounded-lg ${
+              passwordUpdate || contactUpdate ? "bg-gray-200" : ""
+            }`}
             id="email"
             defaultValue={user?.email}
             onChange={handleChange}
-            readOnly={passwordUpdate}
+            readOnly={passwordUpdate || contactUpdate}
           />
         </div>
         <div className="flex items-center gap-2">
@@ -252,7 +308,7 @@ const Profile = () => {
         </button>
       </div>
       <div className="bg-white flex flex-col items-center rounded-lg my-5 p-4 shadow-md">
-      <p className="font-medium text-lg">Actions</p>
+        <p className="font-medium text-lg">Actions</p>
         <button
           className="bg-blue-500 text-white p-3 rounded-lg w-full mt-4"
           onClick={() => navigate("/create-listing")}

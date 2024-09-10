@@ -7,6 +7,24 @@ const listingSchema = new mongoose.Schema({
         min: 6,
         max: 255
     },
+    phone: {
+        type: String,
+        required: false,
+        min: 10,
+        max: 10
+    },
+    whatsapp: {
+        type: String,
+        required: false,
+        min: 10,
+        max: 10
+    },
+    telegram: {
+        type: String,
+        required: false,
+        min: 10,
+        max: 10
+    },
     name: {
         type: String,
         required: true,

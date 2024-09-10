@@ -1,6 +1,28 @@
-import { PropertyCard } from '../components';
+import { PropertyCard, Loader } from '../components';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 const ShowListings = () => {
+
+  const user = useSelector((state: RootState) => state.user.currentUser);
+  const isLoading = useSelector((state: RootState) => state.user.loading);
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     <Loader />;
+  //   } else if (!user) {
+  //     navigate("/signin");
+  //   } else {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       oldEmail: user.email,
+  //       email: user.email,
+  //     }));
+  //   }
+  // }, [isLoading, navigate]);
 
   const properties = [
     {

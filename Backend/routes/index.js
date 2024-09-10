@@ -5,3 +5,4 @@ export { default as imagesUpload } from './imagesUpload.route.js';
 export { default as Listing } from './createListing.route.js';
 export { default as UpdateEmail } from './updateEmail.route.js';
 export { default as UpdatePassword } from './updatePassword.route.js';
+export { default as UpdateContact } from './updateContacts.route.js';

@@ -6,6 +6,9 @@ const router = express.Router();
 router.post("/", async(req, res) => {
     let {
         email, 
+        phone,
+        whatsapp,
+        telegram,
         name, 
         description, 
         address, 
@@ -29,6 +32,9 @@ router.post("/", async(req, res) => {
     console.log("Parsed Data: ", email, name, description, address, action, bedrooms, halls, kitchens, bathrooms, furnished, four_wheeler_parking, two_wheeler_parking, area, property_type, price, discountPercent, discountAmount, imageName);
     const listing = new Listing({
         email, 
+        phone,
+        whatsapp,
+        telegram,
         name, 
         description, 
         address, 
