@@ -6,3 +6,5 @@ export { default as Listing } from './createListing.route.js';
 export { default as UpdateEmail } from './updateEmail.route.js';
 export { default as UpdatePassword } from './updatePassword.route.js';
 export { default as UpdateContact } from './updateContacts.route.js';
+export { default as countListings } from './countListings.route.js';
+export { default as fetchListings } from './fetchListings.route.js';

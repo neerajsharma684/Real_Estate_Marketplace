@@ -12,9 +12,9 @@ router.post("/", async(req, res) => {
         if (!validUser) return res.status(400).send("User Not Found !!!");
         const hashedPassword = bcryptjs.compareSync(password, validUser.password);
         if (!hashedPassword) return res.status(401).send("Invalid Password !!!");
-        const token = jwt.sign({ email:email, id: validUser._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        const token = jwt.sign({ email:email, id: validUser._id }, process.env.JWT_SECRET, { expiresIn: "90d" });
         const { password: pass, ...user } = validUser._doc;
-        res.cookie("access_token", token, { httpOnly: true }).status(200).json(user);
+        res.cookie("access_token", token, { httpOnly: true, maxAge: 90 * 24 * 60 * 60 * 1000 }).status(200).json(user);
     } catch(err){
         res.status(500).send("User Already Exists !!!");
         console.log("User Already Exists !!!");

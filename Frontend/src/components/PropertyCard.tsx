@@ -12,6 +12,7 @@ type PropertyCardProps = {
   action: string;
   currentUser: string;
   agentPhone: string; // Add agent's phone number
+  agentWhatsapp: string; // Add agent's WhatsApp number
   agentEmail: string; // Add agent's email address
   agentTelegram: string; // Add agent's Telegram username
 };
@@ -26,6 +27,7 @@ const PropertyCard = ({
   action,
   currentUser,
   agentPhone,
+  agentWhatsapp,
   agentEmail,
   agentTelegram,
 }: PropertyCardProps) => {
@@ -48,7 +50,7 @@ const PropertyCard = ({
   };
 
   // WhatsApp, Telegram, Call, and Gmail links with dynamic property ID
-  const whatsappLink = `https://wa.me/${agentPhone}?text=${encodeURIComponent(
+  const whatsappLink = `https://wa.me/${agentWhatsapp}?text=${encodeURIComponent(
     `Hello, I'm interested in the property with ID: ${id}. Please provide more details.`
   )}`;
   const telegramLink = `https://t.me/${agentTelegram}?text=${encodeURIComponent(
@@ -82,7 +84,7 @@ const PropertyCard = ({
         <div className="p-4 text-gray-800">
           <h2 className="text-2xl font-bold mb-2">{name}</h2>
           <p className="text-lg mb-1">{address}</p>
-          <p className="text-xl font-semibold">₹{price}</p>
+          <p className="text-xl font-semibold">₹{Number(price).toLocaleString('en-IN')}</p>
         </div>
         <div className="p-4 border-t border-gray-200 flex justify-between text-gray-600">
           <p className="flex items-center">

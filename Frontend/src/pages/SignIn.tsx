@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom"; 
 import { useDispatch, useSelector } from "react-redux";   
 import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
+import Cookies from 'js-cookie';
 
 const SignIn = () => {
   interface FormData {
@@ -17,6 +18,13 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector((state: any) => state.user.loading);
+
+  useEffect(() => {
+    const token = Cookies.get('access_token');
+    if (token) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const handleChange = (e:any) => {
     setFormData({
