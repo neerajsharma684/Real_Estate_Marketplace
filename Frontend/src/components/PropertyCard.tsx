@@ -11,10 +11,16 @@ type PropertyCardProps = {
   price: string;
   action: string;
   currentUser: string;
-  agentPhone: string; // Add agent's phone number
-  agentWhatsapp: string; // Add agent's WhatsApp number
-  agentEmail: string; // Add agent's email address
-  agentTelegram: string; // Add agent's Telegram username
+  agentPhone: string;
+  agentWhatsapp: string;
+  agentEmail: string;
+  agentTelegram: string;
+  bedrooms: number;
+  bathrooms: number;
+  kitchens: number;
+  halls: number;
+  four_wheeler_parking: number;
+  two_wheeler_parking: number;
 };
 
 const PropertyCard = ({
@@ -30,9 +36,45 @@ const PropertyCard = ({
   agentWhatsapp,
   agentEmail,
   agentTelegram,
+  bedrooms,
+  bathrooms,
+  kitchens,
+  halls,
+  four_wheeler_parking,
+  two_wheeler_parking,
 }: PropertyCardProps) => {
   const [showContactOptions, setShowContactOptions] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const isAdmin = email === currentUser;
+
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    // Implement the delete logic here
+    try {
+      const response = await fetch(`http://localhost:3000/api/delete-listing/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        console.log(`Property with ID: ${id} deleted successfully`);
+        setShowDeleteModal(false);
+        window.location.reload();
+      } else {
+        console.error(`Failed to delete property with ID: ${id}`);
+      }
+    } catch (error) {
+      console.error(`Error deleting property with ID: ${id}`, error);
+    }
+  }
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+  };
 
   const adminButtons = () => {
     return (
@@ -42,7 +84,10 @@ const PropertyCard = ({
             Edit
           </button>
         </Link>
-        <button className="bg-red-500 text-white p-2 rounded-lg w-full mb-2">
+        <button
+          onClick={handleDeleteClick}
+          className="bg-red-500 text-white p-2 rounded-lg w-full mb-2"
+        >
           Delete
         </button>
       </div>
@@ -93,7 +138,7 @@ const PropertyCard = ({
               alt="Bedroom Icon"
               className="w-6 h-6 mr-2"
             />
-            <span className="text-gray-900 font-bold mr-1">3</span> Bedrooms
+            <span className="text-gray-900 font-bold mr-1">{bedrooms}</span> Bedrooms
           </p>
           <p className="flex items-center">
             <img
@@ -101,7 +146,43 @@ const PropertyCard = ({
               alt="Bathroom Icon"
               className="w-6 h-6 mr-2"
             />
-            <span className="text-gray-900 font-bold mr-1">2</span> Bathrooms
+            <span className="text-gray-900 font-bold mr-1">{bathrooms}</span> Bathrooms
+          </p>
+        </div>
+        <div className="p-4 border-gray-200 flex justify-between text-gray-600">
+          <p className="flex items-center">
+            <img
+              src="https://img.icons8.com/ios-filled/50/000000/living-room.png"
+              alt="Bedroom Icon"
+              className="w-6 h-6 mr-2"
+            />
+            <span className="text-gray-900 font-bold mr-1">{halls}</span> Halls
+          </p>
+          <p className="flex items-center">
+            <img
+              src="https://img.icons8.com/ios-filled/50/000000/kitchen.png"
+              alt="Bathroom Icon"
+              className="w-6 h-6 mr-2"
+            />
+            <span className="text-gray-900 font-bold mr-1">{kitchens}</span> Kitchens
+          </p>
+        </div>
+        <div className="p-4 border-gray-200 flex justify-between text-gray-600">
+          <p className="flex items-center">
+            <img
+              src="https://img.icons8.com/ios-filled/50/000000/car.png"
+              alt="Bedroom Icon"
+              className="w-6 h-6 mr-2"
+            />
+            <span className="text-gray-900 font-bold mr-1">{four_wheeler_parking}</span> Parking
+          </p>
+          <p className="flex items-center">
+            <img
+              src="https://img.icons8.com/ios-filled/50/000000/motorcycle.png"
+              alt="Bathroom Icon"
+              className="w-6 h-6 mr-2"
+            />
+            <span className="text-gray-900 font-bold mr-1">{two_wheeler_parking}</span> Parking
           </p>
         </div>
       </Link>
@@ -118,7 +199,6 @@ const PropertyCard = ({
       {showContactOptions && (
         <div className="flex flex-col gap-2 p-4 w-full items-center">
           <a href={callLink} className="text-blue-500 hover:underline">
-            {" "}
             <button
               type="button"
               data-twe-ripple-init
@@ -187,6 +267,30 @@ const PropertyCard = ({
       <div className="absolute top-4 right-4 bg-blue-500 text-white text-sm font-semibold py-1 px-2 rounded-full">
         For {action}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm">
+            <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+            <p className="mb-4">Are you sure you want to delete this listing?</p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={cancelDelete}
+                className="bg-gray-300 text-gray-800 p-2 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-500 text-white p-2 rounded-lg"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

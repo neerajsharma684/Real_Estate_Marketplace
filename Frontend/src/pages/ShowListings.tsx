@@ -16,6 +16,12 @@ interface Property {
     phone: string;
     whatsapp: string;
     telegram: string;
+    bedrooms: number;
+    bathrooms: number;
+    kitchens: number;
+    halls: number;
+    four_wheeler_parking: number;
+    two_wheeler_parking: number;
 }
 
 const ShowListings = () => {
@@ -77,6 +83,12 @@ const ShowListings = () => {
             agentWhatsapp={property.whatsapp}
             agentEmail={property.email}
             agentTelegram={property.telegram}
+            bedrooms={property.bedrooms}
+            bathrooms={property.bathrooms}
+            kitchens={property.kitchens}
+            halls={property.halls}
+            four_wheeler_parking={property.four_wheeler_parking}
+            two_wheeler_parking={property.two_wheeler_parking}
           />
         ))}
       </div>
