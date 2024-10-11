@@ -9,3 +9,4 @@ export { default as UpdateContact } from './updateContacts.route.js';
 export { default as countListings } from './countListings.route.js';
 export { default as fetchListings } from './fetchListings.route.js';
 export { default as deleteListing } from './deleteListing.route.js';
+export { default as fetchSingleListing } from './fetchSingleListing.route.js';

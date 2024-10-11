@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { Home, About, SignIn, SignUp, ForgotPassword, CreateListing, NotFound, Profile, ShowListings } from "./pages"
+import { Home, About, SignIn, SignUp, ForgotPassword, CreateListing, NotFound, Profile, ShowListings, UpdateListing } from "./pages"
 import { Header } from "./components"
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/show-listings" element={<ShowListings />} />
         <Route path="/property/:id" element={<ShowListings />} />
-        <Route path="/property-edit/:id" element={<ShowListings />} />
+        <Route path="/property-edit/:id" element={<UpdateListing />} />
         <Route path="/property-contact/:id" element={<ShowListings />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
