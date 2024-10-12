@@ -1,7 +1,20 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { signup, signin, forgotPassword, imagesUpload, Listing, UpdateEmail, UpdatePassword, UpdateContact, countListings, fetchListings, deleteListing, fetchSingleListing } from './routes/index.js';
+import { 
+    signup, 
+    signin, 
+    forgotPassword, 
+    imagesUpload, 
+    Listing, 
+    UpdateEmail, 
+    UpdatePassword, 
+    UpdateContact, 
+    countListings, 
+    fetchListings, 
+    deleteListing, 
+    fetchSingleListing, 
+    fetchAllListings } from './routes/index.js';
 import cors from 'cors';
 
 dotenv.config();
@@ -40,3 +53,4 @@ App.use('/api/count-listings', countListings);
 App.use('/api/fetch-listings', fetchListings);
 App.use('/api/delete-listing', deleteListing);
 App.use('/api/fetch-single-listing', fetchSingleListing);
+App.use('/api/fetch-all-listings', fetchAllListings);
